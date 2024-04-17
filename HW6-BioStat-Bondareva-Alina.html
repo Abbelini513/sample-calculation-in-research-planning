@@ -435,14 +435,14 @@ cat(&quot;Необходимый размер выборки для каждой
 <div id="задание-2" class="section level2">
 <h2><strong>Задание №2</strong></h2>
 <p><em>Рассчитайте выборку для гипотезы non-inferiority для
-двухвыборочного параллельного дизайна. Пусть клинически значимая
-разница</em> <span class="math inline">\(\sigma_m2\)</span> = -0.1, то
-есть мы ожидаем разницу не меньше 10%, а долю ответов для тестового
-препарата <span class="math inline">\(p_2\)</span> = 0.65, в то время
-как нам известно из предыдущих исследований, что доля ответов у
-препарата сравнения составляет <span class="math inline">\(p_1\)</span>
-= 0.85. Соотношение групп равно <span class="math inline">\(k\)</span> =
-1.</p>
+двухвыборочного параллельного дизайна. Пусть клинически значимая разница
+<span class="math inline">\(\sigma_m2\)</span> = -0.1, то есть мы
+ожидаем разницу не меньше 10%, а долю ответов для тестового препарата
+<span class="math inline">\(p_2\)</span> = 0.65, в то время как нам
+известно из предыдущих исследований, что доля ответов у препарата
+сравнения составляет <span class="math inline">\(p_1\)</span> = 0.85.
+Соотношение групп равно <span class="math inline">\(k\)</span> =
+1.</em></p>
 <p>Воспользуйтесь следующей формулой:</p>
 <p><span class="math inline">\(n_1 = n_2 = \frac{(Z_{\alpha/2} +
 Z_{\beta})^2 \left( p_1(1-p_1) + p_2(1-p_2) \right)}{(p_1 - p_2 -
@@ -451,30 +451,29 @@ Z_{\beta})^2 \left( p_1(1-p_1) + p_2(1-p_2) \right)}{(p_1 - p_2 -
 <div id="решение-1" class="section level2">
 <h2><strong>Решение</strong></h2>
 <pre class="r"><code># Клинически значимая разница
-sigma_m2 &lt;- abs(-0.1)
+sigma_m2 &lt;- -0.1
 # Доля ответов для препаратов
 p_1 &lt;- 0.85
 p_2 &lt;- 0.65
 
-# Расчет квантилей нормального распределения
-z_alpha_na_2_2 &lt;- abs(qnorm(1 - alpha / 2))
-z_beta2 &lt;- abs(qnorm(1 - beta))
-
 # Расчет размера выборки для каждой группы
-n1_n2 &lt;- ((z_alpha_na_2_2 + z_beta2)^2 * (p_1 * (1 - p_1) + p_2 * (1 - p_2))) / (p_1 - p_2 - delta)^2
+
+
+n_2 &lt;- ((z_alpha_na_2 + z_beta)^2 * (p_1 * (1 - p_1) + p_2 * (1 - p_2))) / (p_1 - p_2 - sigma_m2)^2
 
 # Учитываем drop-out rate
-n1_n2_with_dropout &lt;- n1_n2 / (1 - drop_out_rate)
+n_2_adjusted &lt;- n_2 / (1 - drop_out_rate)
 
 # Округляем в большую сторону
-n1_n2_for_one_group &lt;- ceiling(n1_n2_with_dropout)
-n_total_sample_size &lt;- n1_n2_for_one_group * 2
+round_n_2_adjusted &lt;- ceiling(n_2_adjusted)
 
 # Вывод результатов
-cat(&quot;Необходимый размер выборки для каждой группы:&quot;, n1_n2_for_one_group, &quot;\n&quot;)</code></pre>
-<pre><code>## Необходимый размер выборки для каждой группы: 1239</code></pre>
-<pre class="r"><code>cat(&quot;Общий размер выборки:&quot;, n_total_sample_size, &quot;\n&quot;)</code></pre>
-<pre><code>## Общий размер выборки: 2478</code></pre>
+cat(&quot;Необходимый размер выборки для каждой группы (без учета drop-out rate):&quot;, ceiling(n_2), &quot;\n&quot;)</code></pre>
+<pre><code>## Необходимый размер выборки для каждой группы (без учета drop-out rate): 31</code></pre>
+<pre class="r"><code>cat(&quot;Скорректированный размер выборки для каждой группы (с учетом drop-out rate):&quot;, round_n_2_adjusted, &quot;\n&quot;)</code></pre>
+<pre><code>## Скорректированный размер выборки для каждой группы (с учетом drop-out rate): 35</code></pre>
+<pre class="r"><code>cat(&quot;Общий размер выборки (с учетом drop-out rate):&quot;, (round_n_2_adjusted * 2), &quot;\n&quot;) # умножаем на 2, так как n1 = n2</code></pre>
+<pre><code>## Общий размер выборки (с учетом drop-out rate): 70</code></pre>
 </div>
 <div id="задание-3" class="section level2">
 <h2><strong>Задание №3</strong></h2>
@@ -499,25 +498,22 @@ d &lt;- 0.8
 p1 &lt;- 0.5
 p2 &lt;- 0.5
 
-# Расчет квантилей нормального распределения
-z_alpha_na_2_3 &lt;- abs(qnorm(1 - alpha / 2))
-z_beta3 &lt;- abs(qnorm(1 - beta))
-
 # Расчет размера выборки для каждой группы
-n_1_n_2 &lt;- (z_alpha_na_2_3 + z_beta3)^2 / (log(HR)^2 * p1 * p2 * d)
+n_3 &lt;- (z_alpha_na_2 + z_beta)^2 / (log(HR)^2 * p1 * p2 * d)
 
 # Учитываем drop-out rate
-n_1_n_2_with_dropout &lt;- n_1_n_2 / (1 - drop_out_rate)
+n_3_adjusted &lt;- n_3 / (1 - drop_out_rate)
 
 # Округляем в большую сторону
-n_1_n_2_for_one_group &lt;- ceiling(n_1_n_2_with_dropout)
-n_1_n_2_total_sample_size &lt;- n_1_n_2_for_one_group * 2
+round_n_3_adjusted &lt;- ceiling(n_3_adjusted)
 
 # Вывод результатов
-cat(&quot;Необходимый размер выборки для каждой группы:&quot;, n_1_n_2_for_one_group, &quot;\n&quot;)</code></pre>
-<pre><code>## Необходимый размер выборки для каждой группы: 91</code></pre>
-<pre class="r"><code>cat(&quot;Общий размер выборки:&quot;, n_1_n_2_total_sample_size, &quot;\n&quot;)</code></pre>
-<pre><code>## Общий размер выборки: 182</code></pre>
+cat(&quot;Необходимый размер выборки для каждой группы (без учета drop-out rate):&quot;, ceiling(n_3), &quot;\n&quot;)</code></pre>
+<pre><code>## Необходимый размер выборки для каждой группы (без учета drop-out rate): 82</code></pre>
+<pre class="r"><code>cat(&quot;Скорректированный размер выборки для каждой группы (с учетом drop-out rate):&quot;, round_n_3_adjusted, &quot;\n&quot;)</code></pre>
+<pre><code>## Скорректированный размер выборки для каждой группы (с учетом drop-out rate): 91</code></pre>
+<pre class="r"><code>cat(&quot;Общий размер выборки (с учетом drop-out rate):&quot;, (round_n_3_adjusted * 2), &quot;\n&quot;) # умножаем на 2, так как n1 = n2</code></pre>
+<pre><code>## Общий размер выборки (с учетом drop-out rate): 182</code></pre>
 </div>
 </div>
 
