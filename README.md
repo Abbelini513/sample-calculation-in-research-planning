@@ -1,5 +1,5 @@
 
-# Homework 6 BioStat: README
+# Homework 6 
 
 ## Overview
 
